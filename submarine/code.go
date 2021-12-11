@@ -8,24 +8,22 @@ import (
 	"strings"
 )
 
-func printDifferences(measures []int) {
-	var prev int = measures[0]
-	var larger int = 0
+func differences(measures []int) map[string]int {
+	var res map[string]int = make(map[string]int)
 
+	var prev int = measures[0]
 	measures = measures[1:]
 	for _, v := range measures {
-		var diff = v - prev
-		if diff > 0 {
-			fmt.Println("increased by ", diff)
-			larger += 1
-		} else if diff < 0 {
-			fmt.Println("decreased by ", diff)
+		if v > prev {
+			res["larger"] += 1
+		} else if v < prev {
+			res["smaller"] += 1
 		} else {
-			fmt.Println("no change")
+			res["equal"] += 1
 		}
 		prev = v
 	}
-	fmt.Println("There were ", larger, "larger changes")
+	return res
 }
 
 func readMeasurements(filename string) []int {
@@ -45,7 +43,28 @@ func readMeasurements(filename string) []int {
 	return measures
 }
 
+func slidingWindow(measurements []int, size int) []int {
+	var sliding_measurements []int
+
+	for i := 0; i < len(measurements)-1; i++ {
+		total := 0
+
+		// if 0+3 is larger than (3) elements left in list
+		if i+size > len(measurements) {
+			break
+		}
+		for j := 0 + i; j < i+size; j++ {
+			total += measurements[j]
+		}
+		sliding_measurements = append(sliding_measurements, total)
+	}
+
+	return sliding_measurements
+}
+
 func ScanFloor() {
 	measurements := readMeasurements("measures.txt")
-	printDifferences(measurements)
+	measurements = slidingWindow(measurements, 3) // 1789
+	diff := differences(measurements)
+	fmt.Println(diff)
 }
